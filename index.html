@@ -16,7 +16,7 @@
             <div class="header-row">
                 <div class="logo-area">
                     <div class="logo">
-                        <h1>thriftx</h1>
+                        <h1>Thriftx</h1>
                     </div>
                     <div class="auth-section">
                         <div id="userSection">
@@ -33,7 +33,7 @@
                 <div class="center-area">
                     <div class="search-location-row">
                         <div class="search-area">
-                            <input type="text" id="searchInput" class="search-bar" placeholder="Search clothes by size, brand, condition...">
+                            <input type="text" id="searchInput" class="search-bar" placeholder="Search Here...">
                         </div>
                         <div class="location-selector">
                             <select id="locationSelect" class="location-select">
@@ -46,14 +46,14 @@
                                 <option value="Hyderabad">Hyderabad</option>
                             </select>
                         </div>
-                        <nav class="sub-nav">
-                            <a href="#home" class="nav-link">Home</a>
-                            <a href="#products" class="nav-link">Products</a>
-                            <a href="#uploadSection" class="nav-link">Sell</a>
-                            <a href="#" class="nav-link">About</a>
-                            <a href="#" class="nav-link">Contact</a>
-                        </nav>
                     </div>
+                    <nav class="sub-nav">
+                        <a href="#home" class="nav-link">Home</a>
+                        <a href="#products" class="nav-link">Products</a>
+                        <a href="#uploadSection" class="nav-link">Sell</a>
+                        <a href="#" class="nav-link">About</a>
+                        <a href="#" class="nav-link">Contact</a>
+                    </nav>
                 </div>
 
                 <div class="right-area">
@@ -72,7 +72,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1>Discover Sustainable Fashion</h1>
-                <h2>Shop. Sell. Thrive.</h2>
+                <h2>Shop. Sell. Thrift.</h2>
                 <p>India's premier marketplace for pre-loved fashion. Connect with local sellers, find unique pieces, and give your wardrobe a sustainable makeover.</p>
                 <div class="hero-stats">
                     <div class="stat">
@@ -231,7 +231,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Submit Listing</button>
             </form>
-            <p id="suggestionText" class="suggestion-text">Price suggestion: -</p>
         </div>
     </section>
 
@@ -242,37 +241,6 @@
             <div class="products-grid" id="productsGrid">
                 <!-- Products will be loaded here by JavaScript -->
             </div>
-        </div>
-    </section>
-
-    <!-- Sustainability + Gamification Section -->
-    <section class="stats-section">
-        <div class="container stats-grid">
-            <div class="stats-card">
-                <h3>🌍 CO₂ Saved</h3>
-                <p id="co2Saved">0 kg</p>
-            </div>
-            <div class="stats-card">
-                <h3>💧 Water Saved</h3>
-                <p id="waterSaved">0 L</p>
-            </div>
-            <div class="stats-card">
-                <h3>🏅 Community Badge</h3>
-                <p id="userBadge">Eco Rookie</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Extra Eye-Catching Features -->
-    <section class="ai-section">
-        <div class="container">
-            <h2>AI-Powered Styling & Virtual Try-On</h2>
-            <p>Get outfit suggestions and visualize a basic mannequin try-on using your saved items.</p>
-            <ul class="feature-list">
-                <li>“Pairs well with these jeans” recommendations</li>
-                <li>Share your style (Instagram/WhatsApp) with one click</li>
-                <li>Swap item for item with other eco-conscious members</li>
-            </ul>
         </div>
     </section>
 
@@ -486,6 +454,15 @@
 
     <!-- Overlay -->
     <div id="overlay" class="overlay"></div>
+
+    <!-- App Bottom Navigation (Shopping app style) -->
+    <nav class="bottom-nav">
+        <button class="bottom-nav-item" onclick="scrollToProducts()">🏠<span>Home</span></button>
+        <button class="bottom-nav-item" onclick="scrollToProducts()">🛍️<span>Products</span></button>
+        <button class="bottom-nav-item" onclick="document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth' })">➕<span>Sell</span></button>
+        <button class="bottom-nav-item" onclick="document.getElementById('cartSidebar').classList.add('active'); overlay.classList.add('active')">🛒<span>Cart</span></button>
+        <button class="bottom-nav-item" onclick="showMessagesModal()">💬<span>Chat</span></button>
+    </nav>
 
     <script src="script.js"></script>
 </body>

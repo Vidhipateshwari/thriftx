@@ -190,27 +190,58 @@ let wishlist = [];
 let userLocation = '';
 let capturedImages = []; // For camera captured images
 
+// API
+const API_BASE_URL = 'http://localhost:5000/api';
+
 // User Management
 let currentUser = null;
 let users = [];
 let messages = [];
 
-// Load data from localStorage
-function loadData() {
-    const savedUsers = localStorage.getItem('thriftx_users');
-    if (savedUsers) {
-        users = JSON.parse(savedUsers);
+// Load data from API (fallback localStorage)
+async function loadData() {
+    try {
+        const usersRes = await fetch(`${API_BASE_URL}/users`);
+        const messagesRes = await fetch(`${API_BASE_URL}/messages?userId=${currentUser ? currentUser.id : 0}`);
+
+        const usersData = await usersRes.json();
+        const messagesData = await messagesRes.json();
+
+        users = usersData.users || [];
+        messages = messagesData.messages || [];
+    } catch (err) {
+        const savedUsers = localStorage.getItem('thriftx_users');
+        if (savedUsers) users = JSON.parse(savedUsers);
+
+        const savedMessages = localStorage.getItem('thriftx_messages');
+        if (savedMessages) messages = JSON.parse(savedMessages);
     }
-    
-    const savedMessages = localStorage.getItem('thriftx_messages');
-    if (savedMessages) {
-        messages = JSON.parse(savedMessages);
-    }
-    
+
     const savedCurrentUser = localStorage.getItem('thriftx_currentUser');
     if (savedCurrentUser) {
         currentUser = JSON.parse(savedCurrentUser);
         updateUserUI();
+    }
+}
+
+async function syncMessages() {
+    if (!currentUser) return;
+    try {
+        const messagesRes = await fetch(`${API_BASE_URL}/messages?userId=${currentUser.id}`);
+        const messagesData = await messagesRes.json();
+        messages = messagesData.messages || [];
+    } catch (err) {
+        console.warn('Could not sync messages with server:', err);
+    }
+}
+
+async function syncUsers() {
+    try {
+        const usersRes = await fetch(`${API_BASE_URL}/users`);
+        const usersData = await usersRes.json();
+        users = usersData.users || [];
+    } catch (err) {
+        console.warn('Could not sync users with server:', err);
     }
 }
 
@@ -286,7 +317,6 @@ function init() {
     loadCart();
     displayProducts(applyFiltersForDisplay());
     setupEventListeners();
-    document.getElementById('suggestionText').textContent = 'Price suggestion: Enter details above to see suggestions';
 }
 
 // Setup event listeners
@@ -328,11 +358,6 @@ function setupEventListeners() {
 
     // Sell form
     document.getElementById('sellForm').addEventListener('submit', handleSellForm);
-    
-    // Real-time price suggestion
-    document.getElementById('sellPrice').addEventListener('input', updatePriceSuggestion);
-    document.getElementById('sellCondition').addEventListener('change', updatePriceSuggestion);
-    document.getElementById('sellBrand').addEventListener('change', updatePriceSuggestion);
     
     // Authentication
     document.getElementById('loginBtn').addEventListener('click', showLoginModal);
@@ -523,38 +548,6 @@ function toggleFavorite(productId) {
     showSuccessMessage(index === -1 ? 'Added to wishlist' : 'Removed from wishlist');
 }
 
-function getPriceSuggestion(product) {
-    let base = Math.round(product.price);
-    if (product.condition === 'Like New') base = Math.round(base * 1.05);
-    if (product.condition === 'Pre-owned') base = Math.round(base * 0.9);
-    if (product.condition === 'Well Loved') base = Math.round(base * 0.78);
-    if (product.brand === 'Premium') base = Math.round(base * 1.15);
-    if (product.brand === 'Basic') base = Math.round(base * 0.9);
-    const maxPrice = Math.round(base * 1.2);
-    return `₹${base} - ₹${maxPrice}`;
-}
-
-function updatePriceSuggestion() {
-    const price = Number(document.getElementById('sellPrice').value);
-    const condition = document.getElementById('sellCondition').value;
-    const brand = document.getElementById('sellBrand').value;
-    
-    if (!price || price <= 0) {
-        document.getElementById('suggestionText').textContent = 'Price suggestion: Enter a price to see suggestions';
-        return;
-    }
-    
-    // Create a temporary product object for calculation
-    const tempProduct = {
-        price: price,
-        condition: condition,
-        brand: brand
-    };
-    
-    const suggestion = getPriceSuggestion(tempProduct);
-    document.getElementById('suggestionText').textContent = `Price suggestion: ${suggestion}`;
-}
-
 // Update cart UI
 function updateCartUI() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -701,14 +694,10 @@ async function handleSellForm(event) {
     products.unshift(newProduct);
     displayProducts(applyFiltersForDisplay());
 
-    const priceSuggestion = getPriceSuggestion(newProduct);
-    document.getElementById('suggestionText').textContent = `Price suggestion: ${priceSuggestion}`;
-
     showSuccessMessage('Your listing is now live on thriftx!');
     document.getElementById('sellForm').reset();
     capturedImages = [];
     updateImagePreview();
-    document.getElementById('suggestionText').textContent = 'Price suggestion: Enter details above to see suggestions';
 }
 
 // Apply filters
@@ -921,7 +910,6 @@ function init() {
     loadCart();
     displayProducts(applyFiltersForDisplay());
     setupEventListeners();
-    document.getElementById('suggestionText').textContent = 'Price suggestion: Enter details above to see suggestions';
 }
 
 // Authentication Functions
@@ -941,58 +929,92 @@ function hideAuthModals() {
     overlay.classList.remove('active');
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
-    
+
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-        currentUser = user;
+
+    try {
+        let data;
+        try {
+            const res = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+                data = await res.json();
+                currentUser = data.user;
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Invalid credentials');
+            }
+        } catch (apiErr) {
+            // Fallback to localStorage users when API is unavailable
+            const localUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (!localUser || localUser.password !== password) {
+                throw new Error('Invalid email/password (offline mode)');
+            }
+            currentUser = { ...localUser, password: undefined };
+        }
+
         saveCurrentUser();
+        await syncUsers();
+        await syncMessages();
         updateUserUI();
         hideAuthModals();
-        showSuccessMessage(`Welcome back, ${user.name}!`);
-    } else {
-        alert('Invalid email or password');
+        showSuccessMessage(`Welcome back, ${currentUser.name}!`);
+    } catch (err) {
+        alert(err.message);
     }
 }
 
-function handleRegister(event) {
+async function handleRegister(event) {
     event.preventDefault();
-    
+
     const name = document.getElementById('registerName').value;
     const email = document.getElementById('registerEmail').value;
     const phone = document.getElementById('registerPhone').value;
     const password = document.getElementById('registerPassword').value;
     const userType = document.getElementById('userType').value;
-    
-    // Check if user already exists
-    if (users.find(u => u.email === email)) {
-        alert('Email already registered');
-        return;
+
+    try {
+        let registeredUser;
+        try {
+            const res = await fetch(`${API_BASE_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, password, userType })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                registeredUser = data.user;
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Registration failed');
+            }
+        } catch (apiErr) {
+            const existingLocalUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (existingLocalUser) {
+                throw new Error('Email already registered (offline mode)');
+            }
+            registeredUser = { id: Date.now(), name, email, phone, password, userType };
+            users.push(registeredUser);
+            saveUsers();
+        }
+
+        currentUser = { ...registeredUser, password: undefined };
+        saveCurrentUser();
+        await syncUsers();
+        updateUserUI();
+        hideAuthModals();
+        showSuccessMessage(`Welcome to thriftx, ${name}!`);
+    } catch (err) {
+        alert(err.message);
     }
-    
-    const newUser = {
-        id: Date.now(),
-        name,
-        email,
-        phone,
-        password,
-        userType,
-        createdAt: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    saveUsers();
-    
-    currentUser = newUser;
-    saveCurrentUser();
-    updateUserUI();
-    hideAuthModals();
-    showSuccessMessage(`Welcome to thriftx, ${name}!`);
 }
 
 function updateUserUI() {
@@ -1122,38 +1144,41 @@ function openChat(otherUserId) {
     };
 }
 
-function sendMessage(receiverId) {
+async function sendMessage(receiverId) {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
-    
+
     if (!message) return;
-    
-    const newMessage = {
-        id: Date.now(),
-        senderId: currentUser.id,
-        receiverId: receiverId,
-        message: message,
-        timestamp: new Date().toISOString(),
-        read: false
-    };
-    
-    messages.push(newMessage);
-    saveMessages();
-    
-    // Add to chat
-    const chatMessages = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message sent';
-    msgDiv.innerHTML = `
-        <div class="message-sender">You</div>
-        <div>${message}</div>
-        <div class="message-time">${new Date().toLocaleTimeString()}</div>
-    `;
-    chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    messageInput.value = '';
-    updateMessageCount();
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: currentUser.id, receiverId, message })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not send message');
+
+        messages.push(data.message);
+        saveMessages();
+        
+        const chatMessages = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message sent';
+        msgDiv.innerHTML = `
+            <div class="message-sender">You</div>
+            <div>${message}</div>
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+        `;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        messageInput.value = '';
+        await updateMessageCount();
+    } catch (err) {
+        alert(err.message);
+    }
 }
 
 function updateMessageCount() {
@@ -1196,23 +1221,28 @@ function contactSeller(productId) {
     };
 }
 
-function sendContactMessage(sellerId, product) {
-    const message = document.getElementById('contactMessage').value;
-    
-    const contactMessage = {
-        id: Date.now(),
-        senderId: currentUser.id,
-        receiverId: sellerId,
-        message: `Regarding: ${product.name}\nPrice: ₹${product.price}\n\n${message}`,
-        timestamp: new Date().toISOString(),
-        read: false
-    };
-    
-    messages.push(contactMessage);
-    saveMessages();
-    
-    document.getElementById('contactModal').classList.remove('active');
-    overlay.classList.remove('active');
-    showSuccessMessage('Message sent to seller!');
-    updateMessageCount();
+async function sendContactMessage(sellerId, product) {
+    const messageText = document.getElementById('contactMessage').value;
+    const message = `Regarding: ${product.name}\nPrice: ₹${product.price}\n\n${messageText}`;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: currentUser.id, receiverId: sellerId, message })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not send message');
+
+        messages.push(data.message);
+        saveMessages();
+
+        document.getElementById('contactModal').classList.remove('active');
+        overlay.classList.remove('active');
+        showSuccessMessage('Message sent to seller!');
+        updateMessageCount();
+    } catch (err) {
+        alert(err.message);
+    }
 }
