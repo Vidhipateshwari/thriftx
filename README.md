@@ -1,4 +1,2 @@
 # thriftx
-#index.html
-#style.css
-#script.js
+This is a website for selling and buying old clothes.
