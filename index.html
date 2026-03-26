@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>thriftx - Sustainable Fashion Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;700&family=Montserrat:wght@600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-row">
+                <div class="logo-area">
+                    <div class="logo">
+                        <h1>thriftx</h1>
+                    </div>
+                    <div class="auth-section">
+                        <div id="userSection">
+                            <button id="loginBtn" class="btn btn-secondary btn-small">Login</button>
+                            <button id="registerBtn" class="btn btn-primary btn-small">Register</button>
+                        </div>
+                        <div id="userProfile" style="display: none;">
+                            <span id="userName"></span>
+                            <button id="logoutBtn" class="btn btn-secondary btn-small">Logout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="center-area">
+                    <div class="search-location-row">
+                        <div class="search-area">
+                            <input type="text" id="searchInput" class="search-bar" placeholder="Search clothes by size, brand, condition...">
+                        </div>
+                        <div class="location-selector">
+                            <select id="locationSelect" class="location-select">
+                                <option value="">Select Location</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                            </select>
+                        </div>
+                        <nav class="sub-nav">
+                            <a href="#home" class="nav-link">Home</a>
+                            <a href="#products" class="nav-link">Products</a>
+                            <a href="#uploadSection" class="nav-link">Sell</a>
+                            <a href="#" class="nav-link">About</a>
+                            <a href="#" class="nav-link">Contact</a>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="right-area">
+                    <div class="bottom-icons">
+                        <button id="messagesBtn" class="icon-btn" aria-label="Messages">💬 <span id="messageCount">0</span></button>
+                        <button id="wishlistBtn" class="icon-btn" aria-label="Wishlist">♥ <span id="wishlistCount">0</span></button>
+                        <button id="cartBtn" class="icon-btn" aria-label="Cart">🛒 <span id="cartCount">0</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Discover Sustainable Fashion</h1>
+                <h2>Shop. Sell. Thrive.</h2>
+                <p>India's premier marketplace for pre-loved fashion. Connect with local sellers, find unique pieces, and give your wardrobe a sustainable makeover.</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">10K+</span>
+                        <span class="stat-label">Happy Customers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Items Listed</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">25+</span>
+                        <span class="stat-label">Cities Covered</span>
+                    </div>
+                </div>
+                <div class="hero-actions">
+                    <button class="cta-btn primary" onclick="scrollToProducts()">Start Shopping</button>
+                    <button class="cta-btn secondary" onclick="document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth' })">List Your Items</button>
+                </div>
+                <p class="hero-subtitle">Join thousands of fashion enthusiasts making sustainable choices every day</p>
+            </div>
+            <div class="hero-image">
+                <div class="hero-illustration">
+                    👗✨♻️
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Storytelling Banner -->
+    <section class="story-section" aria-label="Why choose thriftx">
+        <div class="container story-content">
+            <div>
+                <h2>Why Choose thriftx?</h2>
+                <p>India's fastest-growing marketplace for pre-loved fashion. Connect directly with local sellers and find unique pieces that tell a story.</p>
+                <ul>
+                    <li>🏪 Shop from verified local sellers across India</li>
+                    <li>💬 Direct messaging with sellers for questions</li>
+                    <li>📸 High-quality photos and detailed descriptions</li>
+                    <li>💰 Competitive prices with smart price suggestions</li>
+                    <li>🌟 Build your fashion reputation with reviews</li>
+                </ul>
+            </div>
+            <div class="story-image">
+                <div class="feature-highlights">
+                    <div class="highlight">✨ Unique Finds</div>
+                    <div class="highlight">🤝 Trusted Community</div>
+                    <div class="highlight">📍 Local Delivery</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Clothing">Clothing</option>
+                </select>
+                <select id="locationFilter" class="filter-select">
+                    <option value="">All Locations</option>
+                    <option value="New York">New York</option>
+                    <option value="Los Angeles">Los Angeles</option>
+                    <option value="Chicago">Chicago</option>
+                    <option value="Houston">Houston</option>
+                    <option value="Phoenix">Phoenix</option>
+                    <option value="Philadelphia">Philadelphia</option>
+                </select>
+                <select id="brandFilter" class="filter-select">
+                    <option value="">All Brands</option>
+                    <option value="Vintage">Vintage</option>
+                    <option value="Urban">Urban</option>
+                    <option value="Basic">Basic</option>
+                    <option value="Premium">Premium</option>
+                </select>
+                <select id="sizeFilter" class="filter-select">
+                    <option value="">All Sizes</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                </select>
+                <select id="conditionFilter" class="filter-select">
+                    <option value="">All Conditions</option>
+                    <option value="New">New</option>
+                    <option value="Like New">Like New</option>
+                    <option value="Pre-owned">Pre-owned</option>
+                    <option value="Well Loved">Well Loved</option>
+                </select>
+                <select id="genderFilter" class="filter-select">
+                    <option value="">All Genders</option>
+                    <option value="Unisex">Unisex</option>
+                    <option value="Women">Women</option>
+                    <option value="Men">Men</option>
+                </select>
+                <select id="priceFilter" class="filter-select">
+                    <option value="">All Prices</option>
+                    <option value="0-1000">₹0 - ₹1000</option>
+                    <option value="1000-2000">₹1000 - ₹2000</option>
+                    <option value="2000-5000">₹2000 - ₹5000</option>
+                    <option value="5000+">₹5000+</option>
+                </select>
+                <select id="sortFilter" class="filter-select">
+                    <option value="">Sort By</option>
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="price-asc">Price (Low to High)</option>
+                    <option value="price-desc">Price (High to Low)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seller Upload + Community Section -->
+    <section class="seller-section" id="uploadSection">
+        <div class="container">
+            <h2>Sell or Swap Clothes Easily</h2>
+            <p>Upload your item, set a price, and let thriftx suggest a smart price range based on condition and brand.</p>
+            <form id="sellForm" class="upload-form">
+                <div class="form-row">
+                    <input type="text" id="sellName" placeholder="Clothing Item Name" required>
+                    <input type="text" id="sellBrand" placeholder="Brand" required>
+                </div>
+                <div class="form-row">
+                    <select id="sellSize" required>
+                        <option value="">Size</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                    </select>
+                    <select id="sellCondition" required>
+                        <option value="">Condition</option>
+                        <option value="Like New">Like New</option>
+                        <option value="Pre-owned">Pre-owned</option>
+                        <option value="Well Loved">Well Loved</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <input type="number" id="sellPrice" placeholder="Price (INR)" min="1" required>
+                    <input type="text" id="sellGender" placeholder="Gender (Unisex/Women/Men)" required>
+                </div>
+                <textarea id="sellDesc" placeholder="Describe the condition and features" rows="3" required></textarea>
+                <div class="form-row">
+                    <label>Upload Images (up to 6):</label>
+                    <div class="image-upload-options">
+                        <button type="button" id="uploadBtn" class="btn btn-secondary">Upload from Gallery</button>
+                        <button type="button" id="cameraBtn" class="btn btn-secondary">Take Photos with Camera</button>
+                    </div>
+                    <input type="file" id="sellImage" accept="image/*" multiple style="display: none;">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Submit Listing</button>
+            </form>
+            <p id="suggestionText" class="suggestion-text">Price suggestion: -</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+        <div class="container">
+            <h2>Featured Products</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Sustainability + Gamification Section -->
+    <section class="stats-section">
+        <div class="container stats-grid">
+            <div class="stats-card">
+                <h3>🌍 CO₂ Saved</h3>
+                <p id="co2Saved">0 kg</p>
+            </div>
+            <div class="stats-card">
+                <h3>💧 Water Saved</h3>
+                <p id="waterSaved">0 L</p>
+            </div>
+            <div class="stats-card">
+                <h3>🏅 Community Badge</h3>
+                <p id="userBadge">Eco Rookie</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extra Eye-Catching Features -->
+    <section class="ai-section">
+        <div class="container">
+            <h2>AI-Powered Styling & Virtual Try-On</h2>
+            <p>Get outfit suggestions and visualize a basic mannequin try-on using your saved items.</p>
+            <ul class="feature-list">
+                <li>“Pairs well with these jeans” recommendations</li>
+                <li>Share your style (Instagram/WhatsApp) with one click</li>
+                <li>Swap item for item with other eco-conscious members</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalImage" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalDescription"></p>
+                    <div class="modal-rating">
+                        <span id="modalRating"></span>
+                    </div>
+                    <div class="modal-price">
+                        <span class="price">$<span id="modalPrice"></span></span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button id="decreaseQty" class="qty-btn">-</button>
+                        <input type="number" id="quantityInput" value="1" min="1" max="10">
+                        <button id="increaseQty" class="qty-btn">+</button>
+                    </div>
+                    <button id="addToCartBtn" class="btn btn-primary">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Shopping Cart</h2>
+            <button class="close-cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be displayed here -->
+        </div>
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax (10%):</span>
+                <span id="tax">$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span id="total">$0.00</span>
+            </div>
+            <button id="checkoutBtn" class="btn btn-primary btn-block">Proceed to Checkout</button>
+            <button id="continueShopping" class="btn btn-secondary btn-block">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content checkout-modal">
+            <span class="close-btn">&times;</span>
+            <h2>Checkout</h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <input type="text" id="fullName" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="address" placeholder="Street Address" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="city" placeholder="City" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="state" placeholder="State" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="zip" placeholder="ZIP Code" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="cardNumber" placeholder="Card Number" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="expiry" placeholder="MM/YY" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="cvv" placeholder="CVV" required>
+                    </div>
+                </div>
+                <div class="checkout-summary">
+                    <p>Total Amount: <strong id="checkoutTotal">$0.00</strong></p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Complete Purchase</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeLogin">&times;</span>
+            <h2>Login to thriftx</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="showRegister">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeRegister">&times;</span>
+            <h2>Register for thriftx</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <input type="text" id="registerName" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="registerEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="registerPhone" placeholder="Phone Number" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <select id="userType" required>
+                        <option value="">Select Account Type</option>
+                        <option value="buyer">Buyer</option>
+                        <option value="seller">Seller</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="showLogin">Login here</a></p>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div id="messagesModal" class="modal">
+        <div class="modal-content messages-modal">
+            <span class="close-btn" id="closeMessages">&times;</span>
+            <h2>Messages</h2>
+            <div class="messages-container">
+                <div class="conversations-list" id="conversationsList">
+                    <!-- Conversations will be loaded here -->
+                </div>
+                <div class="chat-area" id="chatArea">
+                    <div class="chat-messages" id="chatMessages">
+                        <p class="no-chat">Select a conversation to start chatting</p>
+                    </div>
+                    <div class="chat-input" id="chatInput" style="display: none;">
+                        <input type="text" id="messageInput" placeholder="Type your message...">
+                        <button id="sendMessageBtn" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Seller Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeContact">&times;</span>
+            <h2>Contact Seller</h2>
+            <div id="contactInfo">
+                <p><strong>Product:</strong> <span id="contactProductName"></span></p>
+                <p><strong>Seller:</strong> <span id="contactSellerName"></span></p>
+                <p><strong>Price:</strong> ₹<span id="contactProductPrice"></span></p>
+            </div>
+            <form id="contactForm">
+                <div class="form-group">
+                    <textarea id="contactMessage" placeholder="Hi! I'm interested in this item. Is it still available?" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeCamera">&times;</span>
+            <h2>Take Photos</h2>
+            <div class="camera-container">
+                <video id="cameraVideo" autoplay playsinline></video>
+                <canvas id="cameraCanvas" style="display: none;"></canvas>
+                <div class="camera-controls">
+                    <button id="captureBtn" class="btn btn-primary">Take Photo</button>
+                    <button id="doneBtn" class="btn btn-secondary">Done</button>
+                </div>
+                <div id="capturedImages" class="captured-images"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
